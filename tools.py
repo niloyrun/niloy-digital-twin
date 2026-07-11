@@ -4,8 +4,8 @@ import requests
 from dotenv import load_dotenv
 import streamlit as st
 
-pushover_user = st.secrets[PUSHOVER_USER]
-pushover_token = st.secrets[PUSHOVER_TOKEN]
+pushover_user = st.secrets["PUSHOVER_USER"]
+pushover_token = st.secrets["PUSHOVER_TOKEN"]
 
 pushover_url = "https://api.pushover.net/1/messages.json"
 
