@@ -7,12 +7,12 @@ from dotenv import load_dotenv
 import os
 
 
-load_dotenv(override=True)
-
 MODEL_NAME = "gemini-2.5-flash-lite"
-google_api_key = os.getenv("GOOGLE_API_KEY")
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-gemini = OpenAI(base_url=GEMINI_BASE_URL, api_key=google_api_key)
+google_api_key = st.secrets["GOOGLE_API_KEY"]
+gemini = OpenAI(
+    base_url=GEMINI_BASE_URL,
+    api_key=google_api_key)
 
 system = [{"role": "system", "content": TWIN_SYSTEM_PROMPT}]
 
