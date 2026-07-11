@@ -9,7 +9,7 @@ import os
 
 MODEL_NAME = "gemini-2.5-flash-lite"
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-google_api_key = st.secrets["GOOGLE_API_KEY"]
+google_api_key = st.secrets[GOOGLE_API_KEY]
 gemini = OpenAI(
     base_url=GEMINI_BASE_URL,
     api_key=google_api_key)
