@@ -21,9 +21,24 @@ def push(text):
     )
 
 
-def record_user_details(email, name="Name not provided", notes="not provided", phone="Phone not provided"):
-    push(f"Recording interest from {name} with email {email}, phone {phone}, and notes {notes}")
-    return "OK"
+def record_user_details(
+    email=None,
+    phone=None,
+    name="Name not provided",
+    notes="Not provided"
+):
+
+    if not email and not phone:
+        return "Please provide either an email address or a phone number."
+
+    push(
+        f"Recording interest from {name}\n"
+        f"Email: {email or 'Not provided'}\n"
+        f"Phone: {phone or 'Not provided'}\n"
+        f"Notes: {notes}"
+    )
+
+    return "Thank you! I've recorded your contact details."
 
 
 def record_unknown_question(question):
@@ -33,22 +48,35 @@ def record_unknown_question(question):
 
 record_user_details_json = {
     "name": "record_user_details",
-    "description": "Use this tool to record that a user is interested in being in touch and provided an email address",
+    "description": (
+        "Use this tool when the user wants to get in touch with Niloy. "
+        "Record any contact details the user provides, including email, phone number, name, "
+        "and any relevant notes from the conversation."
+    ),
     "parameters": {
         "type": "object",
         "properties": {
-            "email": {"type": "string", "description": "The email address of this user"},
-            "name": {"type": "string", "description": "The user's name, if they provided it"},
-            "notes": {
+            "email": {
                 "type": "string",
-                "description": "Any additional info about the conversation that's worth recording to give context",
+                "description": "The user's email address, if provided."
             },
             "phone": {
                 "type": "string",
-                "description": "The user's phone number, if they provided it",
+                "description": "The user's phone number, if provided."
+            },
+            "name": {
+                "type": "string",
+                "description": "The user's name, if provided."
+            },
+            "notes": {
+                "type": "string",
+                "description": (
+                    "Brief context about why the user wants to get in touch "
+                    "or any useful conversation summary."
+                )
             },
         },
-        "required": ["email"],
+        "required": [],
         "additionalProperties": False,
     },
 }
