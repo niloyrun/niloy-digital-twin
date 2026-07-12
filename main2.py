@@ -5,6 +5,7 @@ from context import TWIN_SYSTEM_PROMPT
 from tools import tools, handle_tool_calls
 from dotenv import load_dotenv
 import os
+from logger import log_chat
 
 
 MODEL_NAME = "gemini-2.5-flash-lite"
@@ -181,6 +182,11 @@ if prompt:
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
             reply = chat(prompt, history)
+            # Log conversation (don't interrupt chat if logging fails)
+            try:
+                log_chat(prompt, reply)
+            except Exception as e:
+                print(f"Logging failed: {e}")
 
         st.markdown(reply)
 
