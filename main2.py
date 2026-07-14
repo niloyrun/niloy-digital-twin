@@ -6,6 +6,12 @@ from tools import tools, handle_tool_calls
 from dotenv import load_dotenv
 import os
 from logger import log_chat
+import time
+from openai import (
+    InternalServerError,
+    RateLimitError,
+    APITimeoutError,
+)
 
 
 MODEL_NAME = "gemini-2.5-flash-lite"
@@ -23,27 +29,56 @@ if "messages" not in st.session_state:
 def chat(message, history):
     messages = system + history + [{"role": "user", "content": message}]
 
-    response = gemini.chat.completions.create(
-        model=MODEL_NAME,
-        messages=messages,
-        tools=tools,
-    )
+    max_retries = 3
 
-    while response.choices[0].finish_reason == "tool_calls":
-        message = response.choices[0].message
-        tool_calls = message.tool_calls
-        results = handle_tool_calls(tool_calls)
+    for attempt in range(max_retries):
+        try:
+            response = gemini.chat.completions.create(
+                model=MODEL_NAME,
+                messages=messages,
+                tools=tools,
+            )
 
-        messages.append(message)
-        messages.extend(results)
+            while response.choices[0].finish_reason == "tool_calls":
+                message = response.choices[0].message
+                tool_calls = message.tool_calls
 
-        response = gemini.chat.completions.create(
-            model=MODEL_NAME,
-            messages=messages,
-            tools=tools,
-        )
+                results = handle_tool_calls(tool_calls)
 
-    return response.choices[0].message.content
+                messages.append(message)
+                messages.extend(results)
+
+                response = gemini.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=messages,
+                    tools=tools,
+                )
+
+            return response.choices[0].message.content
+
+        except (InternalServerError, APITimeoutError) as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+
+            if attempt == max_retries - 1:
+                return (
+                    "⚠️ I'm temporarily having trouble reaching the AI service. "
+                    "Please try again in a few seconds."
+                )
+
+            time.sleep(2)
+
+        except RateLimitError:
+            return (
+                "⚠️ The AI service is currently busy due to high demand. "
+                "Please wait a few seconds and try again."
+            )
+
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return (
+                "⚠️ Sorry, something unexpected happened while processing your request. "
+                "Please try again."
+            )
 
 st.markdown("""
 <style>
